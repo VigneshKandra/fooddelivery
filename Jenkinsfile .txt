@@ -1,21 +1,36 @@
 pipeline{
 
+ agent any
+    
+    tools { 
+        maven 'maven' 
+        jdk 'jdk1.8' 
+    } 
 
 
-    
-    
-    
-    properties([parameters([choice(choices: 'Master\nRelease\nDev', description: 'select the branch ', name: 'Branch')])])
+     properties([parameters([choice(choices: 'Master\nRelease\nDev', description: 'select the branch ', name: 'Branch')])])
         node {
                  stage('SCM checkout'){
                     echo "pulling changes from the branch $params.branch"
                     git url:'https://gitlab.com/kandra.vignesh4/react-js-quick-food-delivery-website.git' ,branch:"$params.branch"
                  }
             }
-        stage ('Docker run'){
-                docker login -u vigneshkandra -p Vignesh@1
-                docker run  -t -p 3000:3000 fooddeliveryappimage
-                //xdg-open ipaddress:3000
-            }
+
+    stages{
+    stage('Build Project') {
+         steps {
+            bat '''
+            echo 'cd shopizer'
+            mvn clean install
+            '''
+         }
+    }
+
+    
+    
+    }
+    }
+   
+        
 
 }
