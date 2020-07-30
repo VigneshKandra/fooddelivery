@@ -19,11 +19,19 @@ pipeline{
     stages{
     stage('Build Project') {
          steps {
-            bat '''
-            echo 'cd shopizer'
+            sh label: '', script: '''
+            cd Hackathon/react-js-quick-food-delivery-website/ 
             mvn clean install
             '''
          }
+
+         stage ('Docker run'){
+          sh label: '', script: '''  
+                docker login -u vigneshkandra -p Vignesh@1
+                docker run  -t -p 3000:3000 fooddeliveryappimage
+                xdg-open 13.233.6.233:3000
+                '''
+            }
     }
 
     
