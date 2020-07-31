@@ -1,45 +1,19 @@
-pipeline{
 
- agent any
-    
-    tools { 
-        maven 'maven' 
-        jdk 'jdk1.8' 
-    } 
-
-
+pipeline {
+    agent any
     stages{
-    stage('Build Project') {
-         steps {
-            sh label: '', script: '''
-            echo 'building!!!'
-            '''
-         }
-        
-    }
-
-    stage ('Docker run'){
-        steps{
-          sh label: '', script: '''  
-          sudo -s
-          sudo -i
-          cd /home/ubuntu/
-          cd ..
-          cd ..
-           cd Hackathon/react-js-quick-food-delivery-website/
-           docker build . -t image1
-                docker run  -t -p 3000:3000 image1 
-                '''
-            }
-             
-         }
-    }
-
-    
-    
-    }
-
-   
-        
-
-
+	stage ('checkout') {
+	    steps{
+		    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/raamstar/simple-reactjs-app.git']]])
+	}
+	}
+	    
+	stage('Submit Stack') {
+            steps {
+		    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-key', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {	     
+				    sh "aws cloudformation create-stack --stack-name mynewstack9 --template-body file://stack.yaml --capabilities CAPABILITY_IAM --region us-east-1"
+		    }
+          }    
+  }
+}
+}
